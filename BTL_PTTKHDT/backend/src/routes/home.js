@@ -24,14 +24,12 @@ router.get("/", async (req, res) => {
     const { data: products } = await supabase
       .from("products")
       .select("*")
-      .order("created_at", { ascending: false })
-      .limit(10);
+      .order("created_at", { ascending: false });
 
     const { data: featured } = await supabase
       .from("products")
       .select("*")
-      .order("rating", { ascending: false })
-      .limit(10);
+      .order("rating", { ascending: false });
 
     res.json({
       categories,

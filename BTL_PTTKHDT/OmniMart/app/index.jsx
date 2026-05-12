@@ -34,6 +34,9 @@ import CustomerOrders from "../screens/CustomerOrders";
 import ChatScreen from "../screens/ChatScreen";
 import ChatList from "../screens/ChatList";
 
+import AdminCategories from "../screens/AdminCategories";
+import AdminShops from "../screens/AdminShops";
+
 const Stack = createNativeStackNavigator();
 
 export default function Index() {
@@ -103,10 +106,12 @@ export default function Index() {
   <Stack.Screen name="AdminUsers" component={AdminUsers} />
   <Stack.Screen name="AdminProducts" component={AdminProducts} />
   <Stack.Screen name="AdminOrders" component={AdminOrders} />
+  <Stack.Screen name="AdminCategories" component={AdminCategories} />
+  <Stack.Screen name="AdminShops" component={AdminShops} />
   <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
   <Stack.Screen name="SellerOrders" component={SellerOrders} />
   <Stack.Screen name="CustomerOrders" component={CustomerOrders} />
-    <Stack.Screen name="ChatList" component={ChatList} />
+  <Stack.Screen name="ChatList" component={ChatList} />
 </Stack.Navigator>
   );
 }

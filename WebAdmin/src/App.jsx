@@ -8,6 +8,14 @@ import Users from './pages/Users';
 import Products from './pages/Products';
 import Orders from './pages/Orders';
 import Vouchers from './pages/Vouchers';
+import Shops from './pages/Shops';
+import Categories from './pages/Categories';
+import CustomerLayout from './components/CustomerLayout';
+import StoreHome from './pages/StoreHome';
+import SignUp from './pages/SignUp';
+import Cart from './pages/Cart';
+import ProductDetail from './pages/ProductDetail';
+import OrderHistory from './pages/OrderHistory';
 import './styles/index.css';
 
 const ProtectedLayout = ({ children }) => {
@@ -15,6 +23,7 @@ const ProtectedLayout = ({ children }) => {
 
   if (loading) return null;
   if (!user) return <Navigate to="/login" />;
+  if (user.role === 'customer') return <Navigate to="/" />;
 
   return (
     <div style={styles.layout}>
@@ -28,47 +37,70 @@ const ProtectedLayout = ({ children }) => {
   );
 };
 
+import { CartProvider } from './context/CartContext';
+
 const App = () => {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          
-          <Route path="/" element={
-            <ProtectedLayout>
-              <Dashboard />
-            </ProtectedLayout>
-          } />
+    <CartProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Customer Routes */}
+            <Route path="/" element={<CustomerLayout><StoreHome /></CustomerLayout>} />
+            <Route path="/cart" element={<CustomerLayout><Cart /></CustomerLayout>} />
+            <Route path="/product/:id" element={<CustomerLayout><ProductDetail /></CustomerLayout>} />
+            <Route path="/orders" element={<CustomerLayout><OrderHistory /></CustomerLayout>} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+            
+            {/* Admin Routes */}
+            <Route path="/admin" element={
+              <ProtectedLayout>
+                <Dashboard />
+              </ProtectedLayout>
+            } />
 
-          <Route path="/users" element={
-            <ProtectedLayout>
-              <Users />
-            </ProtectedLayout>
-          } />
-          
-          <Route path="/products" element={
-            <ProtectedLayout>
-              <Products />
-            </ProtectedLayout>
-          } />
+            <Route path="/admin/users" element={
+              <ProtectedLayout>
+                <Users />
+              </ProtectedLayout>
+            } />
+            
+            <Route path="/admin/products" element={
+              <ProtectedLayout>
+                <Products />
+              </ProtectedLayout>
+            } />
 
-          <Route path="/orders" element={
-            <ProtectedLayout>
-              <Orders />
-            </ProtectedLayout>
-          } />
+            <Route path="/admin/orders" element={
+              <ProtectedLayout>
+                <Orders />
+              </ProtectedLayout>
+            } />
 
-          <Route path="/vouchers" element={
-            <ProtectedLayout>
-              <Vouchers />
-            </ProtectedLayout>
-          } />
+            <Route path="/admin/vouchers" element={
+              <ProtectedLayout>
+                <Vouchers />
+              </ProtectedLayout>
+            } />
 
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+            <Route path="/admin/shops" element={
+              <ProtectedLayout>
+                <Shops />
+              </ProtectedLayout>
+            } />
+
+            <Route path="/admin/categories" element={
+              <ProtectedLayout>
+                <Categories />
+              </ProtectedLayout>
+            } />
+
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </CartProvider>
   );
 };
 

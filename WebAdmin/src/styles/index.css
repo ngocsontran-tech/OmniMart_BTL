@@ -1,18 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --primary: #E36631;
-  --primary-dark: #c54e1f;
+  --primary: #E36631;          /* Màu cam chủ đạo */
+  --primary-light: #ff8b5c;
+  --primary-dark: #b54a1d;
   --secondary: #2196F3;
   --bg: #f8fafc;
+  --bg-white: #ffffff;
+  --bg-dark: #0f172a;
   --surface: #ffffff;
   --text: #1e293b;
+  --text-main: #1e293b;
   --text-muted: #64748b;
   --border: #e2e8f0;
   --success: #10b981;
   --danger: #ef4444;
   --warning: #f59e0b;
   --sidebar-width: 260px;
+  --border-radius-lg: 25px;
+  --border-radius-md: 15px;
+  --shadow-primary: 0 4px 6px -1px rgba(227, 102, 49, 0.4);
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);

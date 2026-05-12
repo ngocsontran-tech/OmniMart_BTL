@@ -8,8 +8,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('admin_user');
-    const token = localStorage.getItem('admin_token');
+    const storedUser = localStorage.getItem('omnimart_user');
+    const token = localStorage.getItem('omnimart_token');
 
     if (storedUser && token) {
       setUser(JSON.parse(storedUser));
@@ -20,19 +20,16 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const { data } = await client.post('/auth/login', { email, password });
     
-    if (data.user.role !== 'admin') {
-      throw new Error('Bạn không có quyền truy cập trang quản trị');
-    }
-
-    localStorage.setItem('admin_token', data.token);
-    localStorage.setItem('admin_user', JSON.stringify(data.user));
+    // Lưu thông tin vào localStorage cho mọi role
+    localStorage.setItem('omnimart_token', data.token);
+    localStorage.setItem('omnimart_user', JSON.stringify(data.user));
     setUser(data.user);
     return data.user;
   };
 
   const logout = () => {
-    localStorage.removeItem('admin_token');
-    localStorage.removeItem('admin_user');
+    localStorage.removeItem('omnimart_token');
+    localStorage.removeItem('omnimart_user');
     setUser(null);
     window.location.href = '/login';
   };

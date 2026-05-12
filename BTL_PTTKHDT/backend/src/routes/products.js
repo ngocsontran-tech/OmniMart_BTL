@@ -47,7 +47,8 @@ router.get("/:id", async (req, res) => {
           size,
           color,
           price,
-          stock
+          stock,
+          image
         ),
         shops (
           id,

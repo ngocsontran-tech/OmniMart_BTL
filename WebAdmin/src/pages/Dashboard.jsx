@@ -20,8 +20,12 @@ import {
   Area
 } from 'recharts';
 import client from '../api/client';
+import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const isSeller = user?.role === 'seller';
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -39,14 +43,14 @@ const Dashboard = () => {
     fetchStats();
   }, []);
 
-  const chartData = [
-    { name: 'Thứ 2', revenue: 4000 },
-    { name: 'Thứ 3', revenue: 3000 },
-    { name: 'Thứ 4', revenue: 2000 },
-    { name: 'Thứ 5', revenue: 2780 },
-    { name: 'Thứ 6', revenue: 1890 },
-    { name: 'Thứ 7', revenue: 2390 },
-    { name: 'Chủ Nhật', revenue: 3490 },
+  const chartData = stats?.chartData || [
+    { name: 'Thứ 2', revenue: 0 },
+    { name: 'Thứ 3', revenue: 0 },
+    { name: 'Thứ 4', revenue: 0 },
+    { name: 'Thứ 5', revenue: 0 },
+    { name: 'Thứ 6', revenue: 0 },
+    { name: 'Thứ 7', revenue: 0 },
+    { name: 'Chủ Nhật', revenue: 0 },
   ];
 
   if (loading) return <div style={styles.loading}>Đang tải dữ liệu...</div>;
@@ -54,39 +58,56 @@ const Dashboard = () => {
   return (
     <div className="animate-fade-in">
       <header style={styles.header}>
-        <h1 style={styles.title}>Tổng quan hệ thống</h1>
-        <p style={styles.subtitle}>Chào mừng bạn quay lại, đây là những gì đang diễn ra hôm nay.</p>
+        <h1 style={styles.title}>{isAdmin ? 'Tổng quan hệ thống' : 'Tổng quan cửa hàng'}</h1>
+        <p style={styles.subtitle}>
+          {isAdmin 
+            ? 'Chào mừng bạn quay lại, đây là những gì đang diễn ra hôm nay.' 
+            : `Chào mừng ${user?.name}, đây là tình hình kinh doanh của shop bạn.`}
+        </p>
       </header>
 
       <div style={styles.grid}>
         <StatCard 
-          title="Doanh thu tổng" 
+          title="Doanh thu" 
           value={`${stats?.totalRevenue?.toLocaleString()}₫`} 
           icon={<DollarSign size={24} color="#10b981" />} 
           color="#10b981"
-          trend="+12.5%"
+          trend={stats?.revenueTrend} // Lấy từ backend nếu có
         />
         <StatCard 
           title="Đơn hàng" 
           value={stats?.totalOrders} 
           icon={<ShoppingBag size={24} color="#2196F3" />} 
           color="#2196F3"
-          trend="+5.2%"
+          trend={stats?.ordersTrend}
         />
-        <StatCard 
-          title="Người dùng" 
-          value={stats?.totalUsers} 
-          icon={<Users size={24} color="#8b5cf6" />} 
-          color="#8b5cf6"
-          trend="+18.7%"
-        />
-        <StatCard 
-          title="Hoa hồng sàn" 
-          value={`${stats?.platformRevenue?.toLocaleString()}₫`} 
-          icon={<TrendingUp size={24} color="var(--primary)" />} 
-          color="var(--primary)"
-          trend="+15.3%"
-        />
+        {isAdmin && (
+          <>
+            <StatCard 
+              title="Người dùng" 
+              value={stats?.totalUsers} 
+              icon={<Users size={24} color="#8b5cf6" />} 
+              color="#8b5cf6"
+              trend={stats?.usersTrend}
+            />
+            <StatCard 
+              title="Hoa hồng sàn" 
+              value={`${stats?.platformRevenue?.toLocaleString()}₫`} 
+              icon={<TrendingUp size={24} color="var(--primary)" />} 
+              color="var(--primary)"
+              trend={stats?.platformTrend}
+            />
+          </>
+        )}
+        {isSeller && (
+          <StatCard 
+            title="Sản phẩm của tôi" 
+            value={stats?.totalProducts} 
+            icon={<Package size={24} color="#f59e0b" />} 
+            color="#f59e0b"
+            trend={stats?.productsTrend}
+          />
+        )}
       </div>
 
       <div style={styles.chartsGrid}>
@@ -114,12 +135,28 @@ const Dashboard = () => {
         </div>
 
         <div style={styles.chartCard}>
-          <h3 style={styles.chartTitle}>Tình trạng hệ thống</h3>
+          <h3 style={styles.chartTitle}>{isAdmin ? 'Tình trạng hệ thống' : 'Tình trạng cửa hàng'}</h3>
           <div style={styles.statusList}>
-            <StatusItem icon={<Package color="#2196F3" />} label="Sản phẩm đang bán" value={stats?.totalProducts} />
-            <StatusItem icon={<Users color="#8b5cf6" />} label="Số lượng Seller" value={stats?.totalSellers} />
-            <StatusItem icon={<Clock color="#f59e0b" />} label="Đơn hàng chờ xử lý" value="12" />
-            <StatusItem icon={<CheckCircle color="#10b981" />} label="Đơn hàng thành công" value="145" />
+            <StatusItem 
+              icon={<Package color="#2196F3" />} 
+              label={isAdmin ? "Sản phẩm đang bán" : "Số lượng sản phẩm"} 
+              value={stats?.totalProducts} 
+            />
+            {isAdmin && (
+              <StatusItem icon={<Users color="#8b5cf6" />} label="Số lượng Seller" value={stats?.totalSellers} />
+            )}
+            <StatusItem 
+              label="Đơn hàng chờ xử lý" 
+              value={stats?.pendingOrders || 0} 
+              icon={<Clock size={20} color="#f59e0b" />} 
+              bgColor="#fffbeb" 
+            />
+            <StatusItem 
+              label="Đơn hàng thành công" 
+              value={stats?.completedOrders || 0} 
+              icon={<CheckCircle size={20} color="#10b981" />} 
+              bgColor="#ecfdf5" 
+            />
           </div>
         </div>
       </div>
@@ -131,7 +168,7 @@ const StatCard = ({ title, value, icon, color, trend }) => (
   <div style={styles.card}>
     <div style={styles.cardHeader}>
       <div style={{ ...styles.iconWrapper, backgroundColor: `${color}15` }}>{icon}</div>
-      <span style={styles.trend}>{trend}</span>
+      {trend && <span style={styles.trend}>{trend}</span>}
     </div>
     <div style={styles.cardBody}>
       <h4 style={styles.cardTitle}>{title}</h4>

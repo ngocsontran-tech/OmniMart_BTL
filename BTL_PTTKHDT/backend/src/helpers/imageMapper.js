@@ -3,10 +3,29 @@ const { SUPABASE_IMAGE_BASE } = require("../config/constants");
 /** Map URL ảnh đầy đủ cho 1 sản phẩm */
 const mapProductImage = (product) => {
   if (!product) return product;
-  return {
+  const isHttp = product.image && product.image.startsWith('http');
+  const mappedProduct = {
     ...product,
-    image: product.image ? SUPABASE_IMAGE_BASE + product.image : null,
+    image: product.image ? (isHttp ? product.image : SUPABASE_IMAGE_BASE + product.image) : null,
   };
+
+  // Map images for variants if they exist
+  if (mappedProduct.product_variants) {
+    mappedProduct.product_variants = mapProductVariantsImage(mappedProduct.product_variants);
+  }
+
+  return mappedProduct;
+};
+
+/** Map URL ảnh cho danh sách variants */
+const mapProductVariantsImage = (variants = []) => {
+  return variants.map(v => {
+    const isHttp = v.image && v.image.startsWith('http');
+    return {
+      ...v,
+      image: v.image ? (isHttp ? v.image : SUPABASE_IMAGE_BASE + v.image) : null
+    };
+  });
 };
 
 /** Map URL ảnh cho danh sách sản phẩm */
@@ -24,5 +43,6 @@ const mapShopLogo = (shop) => {
 module.exports = {
   mapProductImage,
   mapProductsImage,
+  mapProductVariantsImage,
   mapShopLogo,
 };

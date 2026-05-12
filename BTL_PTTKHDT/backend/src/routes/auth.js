@@ -35,6 +35,17 @@ router.post("/login", async (req, res) => {
       { expiresIn: "7d" }
     );
 
+    // Nếu là seller, lấy thêm thông tin shop
+    let shop = null;
+    if (user.role === "seller") {
+      const { data: shopData } = await supabase
+        .from("shops")
+        .select("id, name")
+        .eq("owner_id", user.id)
+        .single();
+      shop = shopData;
+    }
+
     res.json({
       token,
       user: {
@@ -42,6 +53,7 @@ router.post("/login", async (req, res) => {
         email: user.email,
         name: user.name,
         role: user.role,
+        shop: shop, // Trả về thông tin shop
       },
     });
   } catch (err) {

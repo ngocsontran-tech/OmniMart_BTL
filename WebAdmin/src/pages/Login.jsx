@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, Loader2, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { login } = useAuth();
@@ -17,8 +18,12 @@ const Login = () => {
     setError('');
     
     try {
-      await login(email, password);
-      navigate('/');
+      const user = await login(email, password);
+      if (user.role === 'admin' || user.role === 'seller') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       setError(err.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại.');
     } finally {
@@ -28,26 +33,21 @@ const Login = () => {
 
   return (
     <div style={styles.container}>
-      <div style={styles.blob1}></div>
-      <div style={styles.blob2}></div>
-      
       <div style={styles.card} className="animate-fade-in">
         <div style={styles.logoBox}>
-          <div style={styles.logoIcon}><ShieldCheck color="#fff" size={32} /></div>
-          <h1 style={styles.logoText}>OmniMart Admin</h1>
-          <p style={styles.logoSubtitle}>Hệ thống quản trị thương mại điện tử</p>
+          <img src="/Logo_OmniMart.png" alt="OmniMart Logo" style={styles.logoImage} />
+          <p style={styles.logoSubtitle}>Please login to continue</p>
         </div>
 
         {error && <div style={styles.errorBox}>{error}</div>}
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.inputGroup}>
-            <label style={styles.label}>Email quản trị</label>
             <div style={styles.inputWrapper}>
-              <Mail size={20} style={styles.icon} />
+              <Mail size={24} style={styles.icon} />
               <input 
                 type="email" 
-                placeholder="admin@omnismart.com" 
+                placeholder="Enter your email" 
                 style={styles.input}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -57,34 +57,46 @@ const Login = () => {
           </div>
 
           <div style={styles.inputGroup}>
-            <label style={styles.label}>Mật khẩu</label>
             <div style={styles.inputWrapper}>
-              <Lock size={20} style={styles.icon} />
+              <Lock size={24} style={styles.icon} />
               <input 
-                type="password" 
-                placeholder="••••••••" 
+                type={showPassword ? "text" : "password"} 
+                placeholder="Enter your password" 
                 style={styles.input}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              <button 
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={styles.eyeBtn}
+              >
+                {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+              </button>
             </div>
+          </div>
+
+          <div style={styles.forgotPasswordContainer}>
+            <button type="button" style={styles.forgotPassword}>Quên mật khẩu?</button>
           </div>
 
           <button 
             type="submit" 
             style={{
               ...styles.submitBtn,
-              backgroundColor: loading ? 'var(--primary-dark)' : 'var(--primary)',
-              opacity: loading ? 0.8 : 1
+              opacity: loading ? 0.7 : 1
             }} 
             disabled={loading}
           >
-            {loading ? <Loader2 className="spinner" size={20} /> : 'Đăng nhập hệ thống'}
+            {loading ? <Loader2 className="spinner" size={24} color="#fff" /> : 'Login'}
           </button>
         </form>
 
-        <p style={styles.footer}>Bản quyền © 2026 OmniMart Team</p>
+        <div style={styles.signupContainer}>
+          <span style={{ color: '#666' }}>Don't have an account? </span>
+          <button type="button" style={styles.signupBtn} onClick={() => navigate('/signup')}>Sign Up</button>
+        </div>
       </div>
 
       <style>
@@ -96,6 +108,9 @@ const Login = () => {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
           }
+          * {
+            box-sizing: border-box;
+          }
         `}
       </style>
     </div>
@@ -104,77 +119,39 @@ const Login = () => {
 
 const styles = {
   container: {
-    height: '100vh',
+    minHeight: '100vh',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#0f172a',
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  blob1: {
-    position: 'absolute',
-    top: '-100px',
-    left: '-100px',
-    width: '400px',
-    height: '400px',
-    backgroundColor: 'var(--primary)',
-    borderRadius: '50%',
-    filter: 'blur(100px)',
-    opacity: 0.15,
-  },
-  blob2: {
-    position: 'absolute',
-    bottom: '-100px',
-    right: '-100px',
-    width: '400px',
-    height: '400px',
-    backgroundColor: 'var(--secondary)',
-    borderRadius: '50%',
-    filter: 'blur(100px)',
-    opacity: 0.15,
+    backgroundColor: '#ffffff',
+    fontFamily: 'system-ui, -apple-system, sans-serif'
   },
   card: {
     width: '100%',
-    maxWidth: '440px',
-    backgroundColor: 'rgba(30, 41, 59, 0.7)',
-    backdropFilter: 'blur(20px)',
-    borderRadius: '32px',
-    padding: '48px',
-    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    zIndex: 10,
-    color: '#fff',
+    maxWidth: '400px',
+    padding: '20px',
+    backgroundColor: '#fff',
   },
   logoBox: {
     textAlign: 'center',
+    marginBottom: '30px',
+  },
+  logoImage: {
+    width: '180px',
+    height: 'auto',
     marginBottom: '40px',
-  },
-  logoIcon: {
-    width: '64px',
-    height: '64px',
-    backgroundColor: 'var(--primary)',
-    borderRadius: '20px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: '0 auto 20px',
-    boxShadow: '0 10px 15px -3px rgba(227, 102, 49, 0.3)',
-  },
-  logoText: {
-    fontSize: '24px',
-    fontWeight: '700',
-    letterSpacing: '-0.5px',
+    marginTop: '30px',
   },
   logoSubtitle: {
-    color: 'rgba(255, 255, 255, 0.5)',
-    fontSize: '14px',
+    color: 'gray',
+    fontSize: '16px',
     marginTop: '4px',
+    marginBottom: '20px',
   },
   errorBox: {
     backgroundColor: 'rgba(239, 68, 68, 0.1)',
     border: '1px solid rgba(239, 68, 68, 0.2)',
-    color: '#fca5a5',
+    color: '#ef4444',
     padding: '12px',
     borderRadius: '12px',
     fontSize: '14px',
@@ -187,56 +164,94 @@ const styles = {
     gap: '20px',
   },
   inputGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
-  },
-  label: {
-    fontSize: '14px',
-    fontWeight: '500',
-    color: 'rgba(255, 255, 255, 0.7)',
-    marginLeft: '4px',
+    width: '100%',
   },
   inputWrapper: {
     position: 'relative',
     display: 'flex',
     alignItems: 'center',
+    width: '100%',
+    height: '50px',
+    borderColor: '#E36631',
+    borderWidth: '2px',
+    borderStyle: 'solid',
+    borderRadius: '15px',
+    backgroundColor: '#fff',
+    boxShadow: '0 3px 4px rgba(227, 102, 49, 0.4)',
   },
   icon: {
-    position: 'absolute',
-    left: '16px',
-    color: 'rgba(255, 255, 255, 0.3)',
+    marginLeft: '12px',
+    color: 'gray',
+    flexShrink: 0,
   },
   input: {
-    width: '100%',
-    padding: '14px 16px 14px 52px',
-    borderRadius: '16px',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    backgroundColor: 'rgba(15, 23, 42, 0.5)',
-    color: '#fff',
-    fontSize: '16px',
+    flex: 1,
+    height: '100%',
+    padding: '0 10px',
+    border: 'none',
+    backgroundColor: 'transparent',
+    color: '#000',
+    fontSize: '15px',
     outline: 'none',
-    transition: 'all 0.2s',
+  },
+  eyeBtn: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    padding: '0 12px',
+    color: 'gray',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  forgotPasswordContainer: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginTop: '-5px',
+  },
+  forgotPassword: {
+    background: 'none',
+    border: 'none',
+    color: '#E36631',
+    fontWeight: '600',
+    cursor: 'pointer',
+    fontSize: '14px',
+    padding: 0,
   },
   submitBtn: {
+    width: '100%',
+    height: '60px',
+    backgroundColor: '#E36631',
     marginTop: '10px',
-    padding: '16px',
-    borderRadius: '16px',
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: '16px',
+    borderRadius: '25px',
+    color: 'white',
+    fontSize: '24px',
+    fontWeight: 'bold',
+    border: 'none',
+    cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '10px',
-    transition: 'all 0.2s',
+    boxShadow: '0 3px 4px rgba(68, 68, 68, 0.4)',
+    transition: 'opacity 0.2s',
   },
-  footer: {
-    textAlign: 'center',
-    marginTop: '40px',
-    fontSize: '13px',
-    color: 'rgba(255, 255, 255, 0.3)',
+  signupContainer: {
+    marginTop: '20px',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    fontSize: '14px',
+  },
+  signupBtn: {
+    background: 'none',
+    border: 'none',
+    color: '#E36631',
+    fontWeight: 'normal',
+    cursor: 'pointer',
+    padding: 0,
+    marginLeft: '4px',
+    fontSize: '14px',
   }
 };
 
 export default Login;
+

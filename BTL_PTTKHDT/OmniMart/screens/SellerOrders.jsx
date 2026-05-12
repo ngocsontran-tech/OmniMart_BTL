@@ -208,36 +208,54 @@ const SellerOrders = ({ nav }) => {
                   </View>
                 ))}
 
-                {/* Nút hành động - chỉ hiện nếu chưa giao hoặc chưa hủy */}
-                {order.status !== "shipped" && order.status !== "completed" && order.status !== "cancelled" && (
+                {/* Nút hành động */}
+                {order.status !== "completed" && order.status !== "cancelled" && (
                   <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 15 }}>
-                    <TouchableOpacity
-                      onPress={() => updateOrderStatus(order.id, "shipped")}
-                      style={{
-                        backgroundColor: "#2196F3",
-                        padding: 12,
-                        borderRadius: 8,
-                        flex: 1,
-                        marginRight: 8,
-                        alignItems: "center",
-                      }}
-                    >
-                      <Text style={{ color: "#fff", fontWeight: "bold" }}>Đã giao hàng</Text>
-                    </TouchableOpacity>
+                    {order.status === "pending" || order.status === "paid" ? (
+                      <TouchableOpacity
+                        onPress={() => updateOrderStatus(order.id, "shipped")}
+                        style={{
+                          backgroundColor: "#2196F3",
+                          padding: 12,
+                          borderRadius: 8,
+                          flex: 1,
+                          marginRight: 8,
+                          alignItems: "center",
+                        }}
+                      >
+                        <Text style={{ color: "#fff", fontWeight: "bold" }}>Giao hàng</Text>
+                      </TouchableOpacity>
+                    ) : order.status === "shipped" ? (
+                      <TouchableOpacity
+                        onPress={() => updateOrderStatus(order.id, "completed")}
+                        style={{
+                          backgroundColor: "#4CAF50",
+                          padding: 12,
+                          borderRadius: 8,
+                          flex: 1,
+                          marginRight: 8,
+                          alignItems: "center",
+                        }}
+                      >
+                        <Text style={{ color: "#fff", fontWeight: "bold" }}>Đã nhận hàng (Hoàn thành)</Text>
+                      </TouchableOpacity>
+                    ) : null}
 
-                    <TouchableOpacity
-                      onPress={() => updateOrderStatus(order.id, "cancelled")}
-                      style={{
-                        backgroundColor: "#F44336",
-                        padding: 12,
-                        borderRadius: 8,
-                        flex: 1,
-                        marginLeft: 8,
-                        alignItems: "center",
-                      }}
-                    >
-                      <Text style={{ color: "#fff", fontWeight: "bold" }}>Hủy đơn</Text>
-                    </TouchableOpacity>
+                    {order.status !== "shipped" && (
+                      <TouchableOpacity
+                        onPress={() => updateOrderStatus(order.id, "cancelled")}
+                        style={{
+                          backgroundColor: "#F44336",
+                          padding: 12,
+                          borderRadius: 8,
+                          flex: 1,
+                          marginLeft: 8,
+                          alignItems: "center",
+                        }}
+                      >
+                        <Text style={{ color: "#fff", fontWeight: "bold" }}>Hủy đơn</Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
                 )}
               </View>

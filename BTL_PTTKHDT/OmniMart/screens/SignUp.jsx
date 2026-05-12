@@ -26,24 +26,39 @@ const SignUp = () => {
   const [shopName, setShopName] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const showAlert = (title, message, onPress) => {
+    if (Platform.OS === "web") {
+      alert(`${title}: ${message}`);
+      if (onPress) onPress();
+    } else {
+      Alert.alert(title, message, onPress ? [{ text: "OK", onPress }] : []);
+    }
+  };
+
   const handleSignUp = async () => {
-    if (!name || !email || !password || !confirmPassword) {
-      Alert.alert("Lỗi", "Vui lòng điền đầy đủ thông tin");
+    if (!name.trim() || !email.trim() || !password || !confirmPassword) {
+      showAlert("Lỗi", "Vui lòng điền đầy đủ thông tin");
+      return;
+    }
+
+    const emailRegex = /\S+@\S+\.\S+/;
+    if (!emailRegex.test(email)) {
+      showAlert("Lỗi", "Email không hợp lệ");
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert("Lỗi", "Mật khẩu không khớp");
+      showAlert("Lỗi", "Mật khẩu không khớp");
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert("Lỗi", "Mật khẩu phải có ít nhất 6 ký tự");
+      showAlert("Lỗi", "Mật khẩu phải có ít nhất 6 ký tự");
       return;
     }
 
     if (isSeller && !shopName.trim()) {
-      Alert.alert("Lỗi", "Vui lòng nhập tên cửa hàng");
+      showAlert("Lỗi", "Vui lòng nhập tên cửa hàng");
       return;
     }
 
@@ -51,13 +66,14 @@ const SignUp = () => {
 
     try {
       const body = {
-        email,
+        email: email.trim(),
         password,
-        name,
+        name: name.trim(),
         is_seller: isSeller,
         shop_name: isSeller ? shopName.trim() : null,
       };
 
+      console.log("Registering with:", `${API_URL}/auth/register`);
       const res = await fetch(`${API_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -67,19 +83,19 @@ const SignUp = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        Alert.alert("Đăng ký thất bại", data.message || "Email đã tồn tại");
+        showAlert("Đăng ký thất bại", data.message || "Email đã tồn tại hoặc có lỗi xảy ra");
         return;
       }
 
-      Alert.alert(
+      showAlert(
         "Thành công! 🎉",
         isSeller
           ? "Tài khoản Seller & Cửa hàng đã được tạo!"
           : "Tài khoản Customer đã được tạo!",
-        [{ text: "OK", onPress: () => navigation.replace("Login") }]
+        () => navigation.replace("Login")
       );
     } catch (err) {
-      Alert.alert("Lỗi", "Không thể kết nối server");
+      showAlert("Lỗi", "Không thể kết nối server. Vui lòng kiểm tra lại kết nối mạng.");
       console.error("SignUp error:", err);
     } finally {
       setLoading(false);

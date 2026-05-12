@@ -13,6 +13,8 @@ import {
   Platform,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "expo-router";
+import ScreenWrapper from "../components/ScreenWrapper";
 import { getProfile } from "../services/userService";
 import { getShop } from "../services/sellerService";
 import { getOrders, cancelOrder as apiCancelOrder } from "../services/orderService";
@@ -20,6 +22,17 @@ import { logout } from "../services/authService";
 
 const Profile = () => {
   const navigation = useNavigation();
+
+  const getStatusText = (status) => {
+    switch (status) {
+      case "pending": return { text: "Chờ xác nhận", color: "#FF9800" };
+      case "paid": return { text: "Đã thanh toán", color: "#4CAF50" };
+      case "shipped": return { text: "Đang giao", color: "#2196F3" };
+      case "completed": return { text: "Hoàn thành", color: "#4CAF50" };
+      case "cancelled": return { text: "Đã hủy", color: "#F44336" };
+      default: return { text: status || "Không rõ", color: "#999" };
+    }
+  };
 
   const [user, setUser] = useState(null);
   const [latestOrder, setLatestOrder] = useState(null);

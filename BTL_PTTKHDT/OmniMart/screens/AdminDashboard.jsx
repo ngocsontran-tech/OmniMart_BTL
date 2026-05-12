@@ -1,3 +1,4 @@
+// screens/AdminDashboard.jsx
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -13,12 +14,14 @@ import ScreenWrapper from "../components/ScreenWrapper";
 import API_URL from "../config/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useNavigation } from "expo-router";
+
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
+
   const fetchData = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
@@ -40,37 +43,43 @@ const AdminDashboard = () => {
       setRefreshing(false);
     }
   };
-const handleLogout = async () => {
-  const doLogout = async () => {
-    await AsyncStorage.removeItem("token");
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "Login" }],
-    });
+
+  const handleLogout = async () => {
+    const doLogout = async () => {
+      await AsyncStorage.removeItem("token");
+      if (navigation.replace) {
+        navigation.replace("Login");
+      } else {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "Login" }],
+        });
+      }
+    };
+
+    if (Platform.OS === "web") {
+      const confirm = window.confirm("Bạn có chắc chắn muốn đăng xuất không?");
+      if (confirm) {
+        await doLogout();
+      }
+    } else {
+      Alert.alert(
+        "Xác nhận đăng xuất",
+        "Bạn có chắc chắn muốn đăng xuất không?",
+        [
+          { text: "Hủy", style: "cancel" },
+          {
+            text: "Đăng xuất",
+            style: "destructive",
+            onPress: async () => {
+              await doLogout();
+            },
+          },
+        ]
+      );
+    }
   };
 
-  if (Platform.OS === "web") {
-    const confirm = window.confirm("Bạn có chắc chắn muốn đăng xuất không?");
-    if (confirm) {
-      await doLogout();
-    }
-  } else {
-    Alert.alert(
-      "Xác nhận đăng xuất",
-      "Bạn có chắc chắn muốn đăng xuất không?",
-      [
-        { text: "Hủy", style: "cancel" },
-        {
-          text: "Đăng xuất",
-          style: "destructive",
-          onPress: async () => {
-            await doLogout();
-          },
-        },
-      ]
-    );
-  }
-};
   useEffect(() => {
     fetchData();
   }, []);
@@ -173,10 +182,6 @@ const handleLogout = async () => {
       <ScrollView
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} />}
       >
-        <Text style={{ fontSize: 26, fontWeight: "bold", marginVertical: 20, color: "#E36631" }}>
-          Admin Dashboard
-        </Text>
-
         {/* Thống kê nhanh */}
         <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", marginBottom: 30 }}>
           {[
@@ -186,7 +191,6 @@ const handleLogout = async () => {
             { label: "Đơn hàng", value: stats?.totalOrders || 0 },
             { label: "Doanh thu hôm nay", value: `${(stats?.todayRevenue || 0).toLocaleString()}₫` },
             { label: "Tổng doanh thu", value: `${(stats?.totalRevenue || 0).toLocaleString()}₫` },
-            // THÊM DÒNG NÀY
             { 
               label: "Doanh thu sàn (5%)", 
               value: `${(stats?.platformRevenue || 0).toLocaleString()}₫`,
@@ -209,6 +213,44 @@ const handleLogout = async () => {
               </Text>
             </View>
           ))}
+        </View>
+
+        {/* Quick Actions */}
+        <Text style={{ fontSize: 22, fontWeight: "bold", marginBottom: 15, color: "#E36631" }}>
+          Lối tắt
+        </Text>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 30 }}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("AdminCategories")}
+            style={{
+              backgroundColor: "#fff",
+              padding: 15,
+              borderRadius: 12,
+              flex: 1,
+              marginRight: 10,
+              alignItems: "center",
+              elevation: 2,
+            }}
+          >
+            <Text style={{ fontSize: 24, marginBottom: 5 }}>📁</Text>
+            <Text style={{ fontWeight: "bold", color: "#333", textAlign: "center" }}>Quản lý Danh mục</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate("AdminShops")}
+            style={{
+              backgroundColor: "#fff",
+              padding: 15,
+              borderRadius: 12,
+              flex: 1,
+              marginLeft: 10,
+              alignItems: "center",
+              elevation: 2,
+            }}
+          >
+            <Text style={{ fontSize: 24, marginBottom: 5 }}>🏪</Text>
+            <Text style={{ fontWeight: "bold", color: "#333", textAlign: "center" }}>Quản lý Cửa hàng</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Danh sách yêu cầu quên mật khẩu */}

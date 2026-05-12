@@ -6,32 +6,53 @@ const authMiddleware = require("../middlewares/auth");
 // POST /checkout
 router.post("/", authMiddleware(), async (req, res) => {
   try {
-    const { address_id, payment_method = "cod" } = req.body;
+    const { address_id, payment_method = "cod", items } = req.body;
 
     if (!address_id) {
       return res.status(400).json({ message: "Missing address" });
     }
 
-    // 1. Lấy cart
-    const { data: cartItems } = await supabase
-      .from("cart")
-      .select(`
-        id,
-        quantity,
-        product_variants (
-          id,
-          price
-        )
-      `)
-      .eq("user_id", req.user.id);
+    let cartItemsToCheckout = [];
 
-    if (!cartItems || cartItems.length === 0) {
-      return res.status(400).json({ message: "Cart is empty" });
+    // Nếu frontend gửi mảng items trực tiếp (như Web React LocalStorage)
+    if (items && Array.isArray(items) && items.length > 0) {
+      cartItemsToCheckout = items.map(item => ({
+        variant_id: item.variantId || item.variant_id, // Support different naming
+        price: item.price,
+        quantity: item.quantity
+      }));
+    } else {
+      // 1. Lấy cart từ DB (như Mobile App)
+      const { data: dbCartItems } = await supabase
+        .from("cart")
+        .select(`
+          id,
+          quantity,
+          product_variants (
+            id,
+            price
+          )
+        `)
+        .eq("user_id", req.user.id);
+
+      if (!dbCartItems || dbCartItems.length === 0) {
+        return res.status(400).json({ message: "Cart is empty" });
+      }
+
+      cartItemsToCheckout = dbCartItems.map(item => ({
+        variant_id: item.product_variants.id,
+        price: item.product_variants.price,
+        quantity: item.quantity
+      }));
+    }
+
+    if (cartItemsToCheckout.length === 0) {
+      return res.status(400).json({ message: "No items to checkout" });
     }
 
     // 2. Tính tổng tiền
-    const total_price = cartItems.reduce(
-      (sum, item) => sum + item.product_variants.price * item.quantity,
+    const total_price = cartItemsToCheckout.reduce(
+      (sum, item) => sum + item.price * item.quantity,
       0
     );
 
@@ -50,10 +71,10 @@ router.post("/", authMiddleware(), async (req, res) => {
     if (orderErr) throw orderErr;
 
     // 4. Tạo ORDER ITEMS
-    const orderItems = cartItems.map((item) => ({
+    const orderItems = cartItemsToCheckout.map((item) => ({
       order_id: order.id,
-      variant_id: item.product_variants.id,
-      price: item.product_variants.price,
+      variant_id: item.variant_id,
+      price: item.price,
       quantity: item.quantity,
     }));
 

@@ -7,35 +7,52 @@ import {
   ClipboardList, 
   Ticket, 
   LogOut,
-  ShoppingBasket
+  ShoppingBasket,
+  Store,
+  Layers
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Sidebar = () => {
   const { logout, user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const isSeller = user?.role === 'seller';
 
   const navItems = [
-    { name: 'Tổng quan', path: '/', icon: <LayoutDashboard size={20} /> },
-    { name: 'Người dùng', path: '/users', icon: <Users size={20} /> },
-    { name: 'Sản phẩm', path: '/products', icon: <ShoppingBasket size={20} /> },
-    { name: 'Đơn hàng', path: '/orders', icon: <ClipboardList size={20} /> },
-    { name: 'Mã giảm giá', path: '/vouchers', icon: <Ticket size={20} /> },
+    { name: 'Tổng quan', path: '/admin', icon: <LayoutDashboard size={20} /> },
+    ...(isAdmin ? [
+      { name: 'Người dùng', path: '/admin/users', icon: <Users size={20} /> },
+      { name: 'Cửa hàng', path: '/admin/shops', icon: <Store size={20} /> },
+      { name: 'Danh mục', path: '/admin/categories', icon: <Layers size={20} /> },
+    ] : []),
+    { name: isSeller ? 'Sản phẩm của tôi' : 'Sản phẩm', path: '/admin/products', icon: <ShoppingBasket size={20} /> },
+    { name: isSeller ? 'Đơn hàng của shop' : 'Đơn hàng', path: '/admin/orders', icon: <ClipboardList size={20} /> },
+    ...(isAdmin ? [
+      { name: 'Mã giảm giá', path: '/admin/vouchers', icon: <Ticket size={20} /> },
+    ] : []),
   ];
 
   return (
     <div style={styles.sidebar}>
       <div style={styles.logo}>
-        <div style={styles.logoIcon}>OM</div>
-        <span style={styles.logoText}>OmniMart Admin</span>
+        <div style={styles.logoIcon}>{isAdmin ? 'AD' : 'SL'}</div>
+        <span style={styles.logoText}>{isAdmin ? 'OmniMart Admin' : 'Seller Center'}</span>
       </div>
 
       <div style={styles.userSection}>
         <div style={styles.avatar}>
-          {user?.name?.charAt(0) || 'A'}
+          {user?.name?.charAt(0) || 'U'}
         </div>
         <div style={styles.userInfo}>
-          <div style={styles.userName}>{user?.name || 'Admin'}</div>
-          <div style={styles.userRole}>Quản trị viên</div>
+          <div style={styles.userName}>{user?.name || 'User'}</div>
+          <div style={styles.userRole}>
+            {isAdmin ? 'Quản trị viên' : (isSeller ? 'Người bán hàng' : 'Khách hàng')}
+          </div>
+          {isSeller && user?.shop && (
+            <div style={{ fontSize: '11px', color: 'var(--primary)', marginTop: '2px' }}>
+              Shop: {user.shop.name}
+            </div>
+          )}
         </div>
       </div>
 
