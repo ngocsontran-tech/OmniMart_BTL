@@ -32,3 +32,6 @@ backend/find_admin.js
 WebAdmin/node_modules/
 OmniMart/node_modules/
 backend/node_modules/
+# Documentation (Keep local only)
+admin_logic_audit.md
+step_by_step_web_redesign.md
