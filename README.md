@@ -1,68 +1,81 @@
-# OmniMart - Hệ thống Thương mại Điện tử Full Stack
+# Phát triển hệ thống Sàn thương mại điện tử Thời trang OmniMart: Thiết kế kiến trúc đa nền tảng và triển khai mô hình quản trị đa vai trò
 
-Dự án BTL môn Phân tích Thiết kế Hệ thống - Một giải pháp thương mại điện tử toàn diện bao gồm Backend, Ứng dụng Di động cho khách hàng và Trang quản trị Web cho người quản lý.
+## 📝 Giới thiệu Đề tài
+Đây là dự án BTL chuyên ngành **Công nghệ phần mềm**. Hệ thống tập trung vào giải pháp thương mại điện tử chuyên biệt cho ngành **Thời trang** (Quần áo, Giày dép, Phụ kiện), giải quyết các bài toán về quản lý biến thể sản phẩm (Size, Màu sắc) và phân quyền quản trị đa cấp.
 
-## 🏗️ Cấu trúc Dự án
+Hệ thống bao gồm một hệ sinh thái hoàn chỉnh: **Backend API**, **Ứng dụng Di động (Khách hàng & Người bán)** và **Trang quản trị Web (Admin hệ thống)**.
 
-Dự án được chia thành 3 phần chính:
+---
 
-1.  **Backend (`BTL_PTTKHDT/backend`)**: 
-    *   Sử dụng Node.js & Express.
-    *   Kiến trúc MVC modular, dễ bảo trì.
-    *   Kết nối cơ sở dữ liệu Supabase.
-    *   Quản lý xác thực qua JWT.
+## 🏗️ Kiến trúc Hệ thống
+Dự án được xây dựng theo mô hình Client-Server với các thành phần:
 
-2.  **Mobile App (`BTL_PTTKHDT/OmniMart`)**:
-    *   Phát triển trên nền tảng React Native (Expo).
-    *   Dành cho khách hàng: Duyệt sản phẩm, đặt hàng, chat với người bán, quản lý voucher.
-    *   Giao diện hiện đại, tối ưu trải nghiệm người dùng.
+1.  **Backend Service (`MobileApp/backend`)**: 
+    *   **Công nghệ**: Node.js & Express.
+    *   **Nhiệm vụ**: Cung cấp RESTful API, quản lý logic nghiệp vụ thời trang, xác thực JWT và kết nối Supabase (PostgreSQL).
+    *   **Đặc điểm**: Kiến trúc modular, xử lý phân quyền đa vai trò (Customer, Seller, Admin).
 
-3.  **Web Admin (`WebAdmin`)**:
-    *   Xây dựng bằng React + Vite.
-    *   Dành cho quản trị viên hệ thống: Quản lý người dùng, duyệt sản phẩm, theo dõi đơn hàng và tạo mã giảm giá.
-    *   Thiết kế cao cấp, biểu đồ thống kê trực quan (Recharts).
+2.  **Mobile App (`MobileApp/OmniMart`)**:
+    *   **Công nghệ**: React Native (Expo).
+    *   **Đối tượng**: 
+        *   *Khách hàng*: Duyệt đồ thời trang theo category, chọn size/màu, đặt hàng, chat realtime.
+        *   *Người bán (Seller)*: Quản lý gian hàng, đăng sản phẩm thời trang, xử lý đơn hàng.
+    *   **Giao diện**: Tối ưu trải nghiệm mobile, mượt mà và hiện đại.
 
-## 🛠️ Công nghệ Sử dụng
+3.  **Web Admin DashBoard (`WebAdmin`)**:
+    *   **Công nghệ**: React, Vite, Framer Motion.
+    *   **Đối tượng**: Quản trị viên hệ thống (Admin).
+    *   **Nhiệm vụ**: Quản lý danh mục thời trang, kiểm soát người dùng/shop, thống kê doanh thu toàn sàn bằng biểu đồ trực quan.
 
-*   **Frontend Web**: React, Vite, Framer Motion, Lucide Icons, Recharts.
+---
+
+## ✨ Tính năng Đặc thù ngành Thời trang
+*   **Product Variants**: Hỗ trợ quản lý sản phẩm theo nhiều thuộc tính (Size giày 38-44, Màu sắc, Chất liệu).
+*   **Real-time Chat**: Tích hợp kênh trao đổi trực tiếp giữa người mua và chủ shop thời trang.
+*   **Voucher & Promotion**: Hệ thống mã giảm giá giúp kích cầu mua sắm.
+*   **Phân quyền (RBAC)**: Cơ chế kiểm soát truy cập nghiêm ngặt dựa trên vai trò của người dùng.
+
+---
+
+## 🛠️ Stack Công nghệ
+*   **Frontend**: React, Vite, Framer Motion, Lucide Icons, Recharts.
 *   **Mobile**: React Native, Expo, React Navigation, Gifted Chat.
 *   **Backend**: Node.js, Express, Supabase SDK, Bcrypt, JWT.
-*   **Database**: PostgreSQL (via Supabase).
+*   **Cơ sở dữ liệu**: PostgreSQL (Supabase).
 
-## 🚀 Hướng dẫn Chạy Dự án
+---
 
-### 1. Chạy Backend
+## 🚀 Hướng dẫn Triển khai
+
+### 1. Khởi động Backend
 ```bash
-cd BTL_PTTKHDT/backend
+cd MobileApp/backend
 npm install
 npm run dev
 ```
-Server sẽ chạy tại: `http://localhost:3000`
+*Cổng mặc định: `http://localhost:3000`*
 
-### 2. Chạy Web Admin
+### 2. Khởi động Web Admin
 ```bash
 cd WebAdmin
 npm install
 npm run dev
 ```
-Truy cập tại: `http://localhost:5173`
+*Cổng mặc định: `http://localhost:5173`*
 
-### 3. Chạy Mobile App
+### 3. Khởi động Mobile App
 ```bash
-cd BTL_PTTKHDT/OmniMart
+cd MobileApp/OmniMart
 npm install
 npx expo start
 ```
-
-## 🔐 Thông tin Đăng nhập (Admin)
-*   **Email**: `dang@gmail.com`
-*   **Mật khẩu**: `123456` (Nếu đã được reset)
-
-## ✨ Tính năng Nổi bật
-*   **Realtime Chat**: Trao đổi giữa người mua và người bán.
-*   **Voucher System**: Áp dụng mã giảm giá linh hoạt.
-*   **Analytics Dashboard**: Thống kê doanh thu và hoạt động hệ thống cho Admin.
-*   **Responsive UI**: Hoạt động tốt trên cả điện thoại và trình duyệt máy tính.
+*Dùng Expo Go trên điện thoại để quét mã QR.*
 
 ---
-Bản quyền © 2026 OmniMart Team.
+
+## 🔐 Thông tin Đăng nhập Quản trị
+*   **Tài khoản Admin**: `dang@gmail.com`
+*   **Mật khẩu**: `123456`
+
+---
+*Dự án được thực hiện cho học phần Công nghệ phần mềm © 2026 OmniMart Team.*
